@@ -1,0 +1,82 @@
+<html>
+<head>
+  <title>eBay Shopping API jQuery Plugin Examples</title>
+  <script type="text/javascript" src="jquery.js"></script>
+  <script type="text/javascript" src="jquery.ebayshoppingapi.js"></script>  
+  <script type="text/javascript">
+    //<![CDATA[
+    jQuery(function($) {
+     // Your eBay appid (get one at http://developer.ebay.com/join/)
+     $.ebay.appid = "<appid required>";
+     // 0=US site, use 3 for the uk
+     // See http://developer.ebay.com/DevZone/XML/docs/WebHelp/FieldDifferences-Site_IDs.html
+     $.ebay.siteid = 0; 
+
+     $(document).ready(function () {
+       // FindItems
+       $("#finditems button").click(
+         function () {
+           $("#finditems .status").text("Loading...");
+           $.ebay.call("FindItems", 
+                       {QueryKeywords: $("#finditems input").val(),
+                        HideDuplicateItems: true,
+                        MaxEntries: 10},
+                       function (response) {
+                         // In the response to FindItems the Item element is an array of objects
+                         var items = response.Item || [];
+                         $("#finditems ul").empty();
+                         $("#finditems .status").text("Returned " + items.length + " items (of " + response.TotalItems + ")" );
+                         $.each(items, function (i, item) {
+                                $("#finditems ul").append(
+                                  $("<li/>").append(
+                                    $("<a/>").
+                                    text(item.ItemID + ": " + item.Title).
+                                    attr("href",item.ViewItemURLForNaturalSearch)));
+                                });
+                       });
+         });
+
+       // GetSingleItem
+       $("#getsingleitem button").click(
+         function () {
+           $("#getsingleitem .status").text("Loading...");
+           $.ebay.call("GetSingleItem", 
+                       {ItemID: $("#getsingleitem input").val()},
+                       function (response) {
+                         // In the response to GetSingleItem the Item element is an object
+                         var item = response.Item || {};
+                         $("#getsingleitem ul").empty();
+                         $("#getsingleitem .status").text("Information retrieved");
+                         $.each(item, function (key, val) {
+                                $("#getsingleitem ul").append(
+                                  $("<li/>").
+                                    text(key + " = " + val));
+                                });
+                       });
+         });
+     });
+    });
+    //]]>
+  </script>
+</head>
+<body>
+<h1>eBay Shopping API jQuery Plugin Examples</h1>
+<div id="finditems">
+<h2>FindItems</h2>
+<input type="text"/> <button>Search By Keywords</button>
+<div class="status"></div>
+<ul>
+</ul>
+</div>
+<div id="getsingleitem">
+<h2>GetSingleItem</h2>
+<input type="text"/> <button>Lookup Item (by auction #)</button>
+<div class="status"></div>
+<ul>
+</ul>
+</div>
+<h2>More</h2>
+See <a href="http://developer.ebay.com/DevZone/shopping/docs/CallRef/index.html">eBay's
+developer docs</a> for details on more calls.
+</body>
+</html>
